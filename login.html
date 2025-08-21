@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Login • Smart Waste Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{--bg:#0f172a;--card:#111827;--text:#e5e7eb;--muted:#94a3b8;--accent:#22c55e;--err:#ef4444}
+    *{box-sizing:border-box;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(180deg,#0b1022,#0f172a);color:var(--text)}
+    .box{width:min(420px,92%);background:var(--card);border:1px solid #1f2937;border-radius:18px;padding:22px 20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:0 0 6px;font-size:26px}
+    p{margin:0 0 18px;color:var(--muted)}
+    label{display:block;margin:10px 0 6px;color:var(--muted);font-size:14px}
+    input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #1f2937;background:#0b1220;color:var(--text)}
+    .row{display:flex;gap:10px;margin-top:14px}
+    button{flex:1;background:#0b1220;color:var(--text);border:1px solid #1f2937;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer}
+    button.primary{border-color:#14532d}
+    .alt{margin-top:12px;text-align:center}
+    .alt a{color:var(--accent);text-decoration:none;cursor:pointer}
+    .hr{margin:16px 0;border-top:1px solid #1f2937}
+    .err{margin-top:10px;color:var(--err);font-size:13px;min-height:16px}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Welcome</h1>
+    <p>Log in to Smart Waste Dashboard</p>
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="you@example.com" />
+
+    <label>Password</label>
+    <input id="pass" type="password" placeholder="••••••••" />
+
+    <div class="row">
+      <button id="btnLogin" class="primary">Sign in</button>
+      <button id="btnSignup">Create account</button>
+    </div>
+
+    <div class="hr"></div>
+    <div class="row">
+      <button id="btnGoogle">Continue with Google</button>
+    </div>
+
+    <div id="msg" class="err"></div>
+
+    <div class="alt">Back to dashboard? <a href="index.html">Open</a></div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // -- paste YOUR firebaseConfig here (same as index.html) --
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const $ = sel => document.querySelector(sel);
+    const setErr = t => $("#msg").textContent = t || "";
+
+    // already logged in? go to dashboard
+    auth.onAuthStateChanged(u => { if(u) location.replace("index.html"); });
+
+    $("#btnLogin").onclick = async () => {
+      setErr("");
+      try{
+        await auth.signInWithEmailAndPassword($("#email").value.trim(), $("#pass").value);
+        location.replace("index.html");
+      }catch(e){ setErr(e.message); }
+    };
+    $("#btnSignup").onclick = async () => {
+      setErr("");
+      try{
+        await auth.createUserWithEmailAndPassword($("#email").value.trim(), $("#pass").value);
+        location.replace("index.html");
+      }catch(e){ setErr(e.message); }
+    };
+    $("#btnGoogle").onclick = async () => {
+      setErr("");
+      try{
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithPopup(provider);
+        location.replace("index.html");
+      }catch(e){ setErr(e.message); }
+    };
+  </script>
+</body>
+</html>
